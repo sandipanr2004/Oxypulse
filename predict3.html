@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Fatigue Level Prediction</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        .navbar {
+            display: flex;
+            background-color: var(--dark-surface);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        header {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .logo i {
+            font-size: 3.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+        }
+
+        .tagline {
+            font-size: 1.6rem;
+        }
+
+        .prediction-container {
+            background-color: var(--dark-card);
+            transform: scale(1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 40px;
+            margin-top: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .prediction-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prediction-container h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--light-color);
+        }
+
+        .prediction-container h2 i {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+            color: var(--primary-color);
+        }
+
+        .prediction-container p {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .prediction-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auto-values {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .auto-values:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .auto-values h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--light-color);
+        }
+
+        .auto-values p {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.3rem;
+            background-color: var(--dark-surface);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3);
+            outline: none;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #43a047;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+        }
+
+        .submit-btn i {
+            font-size: 1.3rem;
+        }
+
+        .prediction-result {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .prediction-result:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .prediction-result h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        #prediction-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        #prediction-value.high {
+            color: #e74c3c;
+        }
+
+        #prediction-value.moderate {
+            color: #f39c12;
+        }
+
+        #prediction-value.low {
+            color: #2ecc71;
+        }
+
+        .prediction-result p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .page-transition {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .auth-section {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-section a.login-btn {
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container page-transition">
+        <header>
+            <div class="logo">
+                <i class="fas fa-heartbeat pulse"></i>
+                <h1>OxyPulse</h1>
+            </div>
+            <p class="tagline">Real-time Health Monitoring System</p>
+        </header>
+
+        <nav class="navbar">
+            <a href="/">Home</a>
+            <a href="/monitor.html">Monitor</a>
+            <a href="/predict.html">Hemoglobin</a>
+            <a href="/health_index.html">Health Index</a>
+            <a href="/predict2.html">Stress</a>
+            <a href="/predict3.html" class="active">Fatigue</a>
+            <div class="auth-section" id="auth-section">
+                <a href="login.html" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="prediction-container">
+                <h2><i class="fas fa-tired"></i> Fatigue Level Prediction</h2>
+                <p>
+                    Fatigue assessment using your physiological parameters and personal information.
+                    This model uses heart rate, blood oxygen level, IR and Red sensor values, age, and gender to predict your fatigue level.
+                </p>
+
+                <div class="auto-values">
+                    <h3><i class="fas fa-sync-alt"></i> Use Monitor Values</h3>
+                    <p>
+                        Click the button below to automatically use the latest values from the monitor.
+                        Make sure you have the monitor running with a finger placed on the sensor.
+                    </p>
+                    <button id="use-monitor-values" class="submit-btn">
+                        <i class="fas fa-download"></i> Get Values from Monitor
+                    </button>
+                </div>
+
+                <form id="prediction-form" class="prediction-form" action="/predict_fatigue" method="post">
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label for="heart-rate">Heart Rate (bpm)</label>
+                            <input type="number" id="heart-rate" name="values" placeholder="Enter heart rate (60-100)" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="spo2">Blood Oxygen (SpO₂ %)</label>
+                            <input type="number" id="spo2" name="values" placeholder="Enter SpO₂ (94-100)" step="0.1" required>
+                        </div>
+                    </div>
+
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label for="ir-value">IR Value</label>
+                            <input type="number" id="ir-value" name="values" placeholder="IR sensor value" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="red-value">Red Value</label>
+                            <input type="number" id="red-value" name="values" placeholder="Red sensor value" required>
+                        </div>
+                    </div>
+
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label for="age">Age (years)</label>
+                            <input type="number" id="age" name="values" placeholder="Enter your age" required min="1" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="values" required>
+                                <option value="" disabled selected>Select your gender</option>
+                                <option value="0">Male</option>
+                                <option value="1">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-calculator"></i> Calculate Fatigue Level
+                    </button>
+                </form>
+
+                <div id="prediction-result" class="prediction-result" style="display: none;">
+                    <h3>Predicted Fatigue Level</h3>
+                    <div id="prediction-value"></div>
+                    <p id="prediction-description"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Firebase and User Profile Scripts -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="user-profile.js"></script>
+    <script type="module" src="predict3.js"></script>
+    <script>
+        // Add page transition effect
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('page-loaded');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Login & Registration</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        .auth-container {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-card {
+            background-color: var(--dark-card);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            animation: pulseMedium 2s infinite;
+        }
+
+        .auth-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--light-color);
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .auth-form-container {
+            margin-top: 20px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-input {
+            background-color: var(--dark-input);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 14px 16px;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .gender-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gender-option input {
+            accent-color: var(--primary-color);
+        }
+
+        .auth-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .auth-switch a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .toggle-forms {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .signup-fields {
+            display: none;
+        }
+
+        .error-message {
+            color: #ff5252;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">❤️</div>
+                <h1 class="auth-title">OxyPulse</h1>
+                <p class="auth-subtitle" id="form-subtitle">Sign in to your account</p>
+            </div>
+
+            <div class="auth-form-container">
+                <form class="auth-form" id="auth-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
+                        <div class="error-message" id="email-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                        <div class="error-message" id="password-error"></div>
+                    </div>
+
+                    <!-- Signup fields (initially hidden) -->
+                    <div class="signup-fields">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" class="form-input" placeholder="Choose a username">
+                            <div class="error-message" id="username-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="age" class="form-label">Age</label>
+                            <input type="number" id="age" class="form-input" placeholder="Enter your age" min="1" max="120">
+                            <div class="error-message" id="age-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <div class="gender-options">
+                                <div class="gender-option">
+                                    <input type="radio" id="male" name="gender" value="male">
+                                    <label for="male">Male</label>
+                                </div>
+                                <div class="gender-option">
+                                    <input type="radio" id="female" name="gender" value="female">
+                                    <label for="female">Female</label>
+                                </div>
+                                <div class="gender-option">
+                                    <input type="radio" id="other" name="gender" value="other">
+                                    <label for="other">Other</label>
+                                </div>
+                            </div>
+                            <div class="error-message" id="gender-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="error-message" id="general-error"></div>
+                    
+                    <button type="button" class="auth-btn" id="auth-button">Sign In</button>
+                </form>
+
+                <div class="auth-switch">
+                    <span id="form-switch-text">Don't have an account?</span>
+                    <span class="toggle-forms" id="toggle-form">Sign Up</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    
+    <!-- Debug script -->
+    <script>
+        // Debug form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded in login.html');
+            const form = document.getElementById('auth-form');
+            if (form) {
+                console.log('Form found');
+                form.addEventListener('submit', (e) => {
+                    console.log('Native form submit handler called');
+                    e.preventDefault();
+                });
+            } else {
+                console.error('Form not found in login.html');
+            }
+        });
+    </script>
+</body>
+</html> 

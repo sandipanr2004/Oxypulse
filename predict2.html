@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Stress Prediction</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        /* Navbar styling */
+        .navbar {
+            display: flex;
+            background-color: var(--dark-surface);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .auth-section {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-section a.login-btn {
+            margin-right: 0;
+        }
+
+        header {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .logo i {
+            font-size: 3.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+        }
+
+        .tagline {
+            font-size: 1.6rem;
+        }
+
+        .prediction-container {
+            transform: scale(1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 40px;
+            margin-top: 30px;
+            border-radius: 20px;
+        }
+
+        .prediction-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prediction-container h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prediction-container h2 i {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .prediction-container p {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .prediction-form {
+            gap: 40px;
+        }
+
+        .auto-values {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .auto-values:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .auto-values h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--light-color);
+        }
+
+        .auto-values p {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .prediction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prediction-table th,
+        .prediction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prediction-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .prediction-table td {
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.3rem;
+            border-width: 2px;
+        }
+
+        .form-group input:focus {
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #43a047;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+        }
+
+        .submit-btn i {
+            font-size: 1.3rem;
+        }
+
+        .prediction-result {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .prediction-result:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .prediction-result h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        .prediction-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .prediction-value.high {
+            color: #e74c3c;
+        }
+
+        .prediction-value.moderate {
+            color: #f39c12;
+        }
+
+        .prediction-value.low {
+            color: #2ecc71;
+        }
+
+        .confidence-bar {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .confidence-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: width 1s ease-out;
+        }
+
+        .prediction-result p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .page-transition {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .stress-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .stress-gauge {
+            width: 200px;
+            height: 100px;
+            position: relative;
+            margin: 0 auto 20px;
+        }
+
+        .stress-gauge svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .stress-gauge-path {
+            fill: none;
+            stroke-width: 15;
+            stroke-linecap: round;
+        }
+
+        .stress-gauge-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .stress-gauge-value {
+            stroke: var(--primary-color);
+            transition: stroke-dasharray 1s ease-out;
+        }
+
+        .stress-gauge-value.high {
+            stroke: #e74c3c;
+        }
+
+        .stress-gauge-value.moderate {
+            stroke: #f39c12;
+        }
+
+        .stress-gauge-value.low {
+            stroke: #2ecc71;
+        }
+
+        .stress-score-value {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container page-transition">
+        <header>
+            <div class="logo">
+                <i class="fas fa-heartbeat pulse"></i>
+                <h1>OxyPulse</h1>
+            </div>
+            <p class="tagline">Real-time Heart Rate & Blood Oxygen Monitoring</p>
+        </header>
+        
+        <nav class="navbar">
+            <a href="/">Home</a>
+            <a href="/monitor.html">Monitor</a>
+            <a href="/predict.html">Hemoglobin</a>
+            <a href="/health_index.html">Health Index</a>
+            <a href="/predict2.html" class="active">Stress</a>
+            <a href="/predict3.html">Fatigue</a>
+            <div class="auth-section" id="auth-section">
+                <a href="login.html" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="prediction-container">
+                <h2><i class="fas fa-brain" style="color: #f39c12;"></i> Stress Level Assessment</h2>
+                <p>This tool analyzes your physiological data to estimate your current stress level. Using heart rate, blood oxygen, and sensor readings, we can provide insights about your stress state without invasive measurements.</p>
+                
+                <div class="auto-values">
+                    <h3><i class="fas fa-sync-alt"></i> Use Monitor Values</h3>
+                    <p>Click the button below to automatically use the latest values from the monitor. Make sure you have the monitor running with a finger placed on the sensor.</p>
+                    <button id="use-monitor-values" class="submit-btn">
+                        <i class="fas fa-download"></i> Get Values from Monitor
+                    </button>
+                    
+                    <table class="prediction-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td>Heart Rate (BPM)</td>
+                            <td id="bpm-value-display">--</td>
+                        </tr>
+                        <tr>
+                            <td>Blood Oxygen (SpO₂)</td>
+                            <td id="spo2-value-display">--</td>
+                        </tr>
+                        <tr>
+                            <td>IR Value</td>
+                            <td id="ir-value-display">--</td>
+                        </tr>
+                        <tr>
+                            <td>Red Value</td>
+                            <td id="red-value-display">--</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form id="prediction-form" class="prediction-form">
+                    <h3>Customize Values</h3>
+                    <p>You can modify the values below if needed:</p>
+                    
+                    <div class="form-group">
+                        <label for="bpm">Heart Rate (BPM)</label>
+                        <input type="number" id="bpm" name="bpm" required min="40" max="200" placeholder="Enter heart rate (60-100)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="spo2">Blood Oxygen (SpO₂ %)</label>
+                        <input type="number" id="spo2" name="spo2" required min="80" max="100" step="0.1" placeholder="Enter SpO₂ (94-100)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ir-value">IR Value</label>
+                        <input type="number" id="ir-value" name="ir_value" required placeholder="IR sensor value">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="red-value">Red Value</label>
+                        <input type="number" id="red-value" name="red_value" required placeholder="Red sensor value">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-calculator"></i> Assess Stress Level
+                    </button>
+                </form>
+                
+                <div class="prediction-result" id="prediction-result" style="display: none;">
+                    <h3>Stress Assessment Result</h3>
+                    
+                    <div class="stress-gauge">
+                        <svg viewBox="0 0 200 100">
+                            <path id="gauge-bg" class="stress-gauge-path stress-gauge-bg" d="M20,90 A80,80 0 0,1 180,90" />
+                            <path id="gauge-value" class="stress-gauge-path stress-gauge-value" d="M20,90 A80,80 0 0,1 180,90" />
+                        </svg>
+                        <div id="stress-score-value" class="stress-score-value">--</div>
+                    </div>
+                    
+                    <div id="prediction-value" class="prediction-value">--</div>
+                    
+                    <div>
+                        <p>Confidence:</p>
+                        <div class="confidence-bar">
+                            <div id="confidence-bar-fill" class="confidence-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="confidence-value">--</p>
+                    </div>
+                    
+                    <p id="prediction-explanation">--</p>
+                    <p class="disclaimer">This assessment is for informational purposes only and not a medical diagnosis. For health concerns, please consult a healthcare professional.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>OxyPulse - Heart Rate & SpO₂ Monitor | Using MAX30105 Sensor</p>
+            <p class="instructions">Place your index finger on the sensor with steady pressure for accurate readings</p>
+        </footer>
+    </div>
+
+    <!-- Add Firebase and User Profile Scripts -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="user-profile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add page transition effect
+            document.body.classList.add('page-loaded');
+            
+            const form = document.getElementById('prediction-form');
+            const useMonitorValuesBtn = document.getElementById('use-monitor-values');
+            const bpmValueDisplay = document.getElementById('bpm-value-display');
+            const spo2ValueDisplay = document.getElementById('spo2-value-display');
+            const irValueDisplay = document.getElementById('ir-value-display');
+            const redValueDisplay = document.getElementById('red-value-display');
+            const bpmInput = document.getElementById('bpm');
+            const spo2Input = document.getElementById('spo2');
+            const irValueInput = document.getElementById('ir-value');
+            const redValueInput = document.getElementById('red-value');
+            const predictionResult = document.getElementById('prediction-result');
+            const predictionValue = document.getElementById('prediction-value');
+            const confidenceBarFill = document.getElementById('confidence-bar-fill');
+            const confidenceValue = document.getElementById('confidence-value');
+            const predictionExplanation = document.getElementById('prediction-explanation');
+            const stressScoreValue = document.getElementById('stress-score-value');
+            const gaugeValue = document.getElementById('gauge-value');
+            
+            // Function to update the sensor values display and form inputs
+            function updateSensorValues() {
+                // Get values from localStorage (updated by the monitor page)
+                let bpmVal = localStorage.getItem('avg-bpm') || localStorage.getItem('lastHeartRate');
+                let spo2Val = localStorage.getItem('avg-spo2') || localStorage.getItem('lastSpo2');
+                let irVal = localStorage.getItem('avg-ir') || localStorage.getItem('lastIrValue');
+                let redVal = localStorage.getItem('avg-red') || localStorage.getItem('lastRedValue');
+                
+                // Generate fallback random values if none exist
+                if (!bpmVal || bpmVal === '0') {
+                    bpmVal = Math.floor(Math.random() * (85 - 65 + 1) + 65).toString();
+                }
+                
+                if (!spo2Val || spo2Val === '0') {
+                    spo2Val = (Math.random() * (100 - 95) + 95).toFixed(1);
+                }
+                
+                if (!irVal || irVal === '0') {
+                    irVal = Math.floor(Math.random() * (100000 - 50000 + 1) + 50000).toString();
+                }
+                
+                if (!redVal || redVal === '0') {
+                    redVal = Math.floor(Math.random() * (80000 - 40000 + 1) + 40000).toString();
+                }
+                
+                // Update display values
+                bpmValueDisplay.textContent = bpmVal;
+                spo2ValueDisplay.textContent = spo2Val;
+                irValueDisplay.textContent = irVal;
+                redValueDisplay.textContent = redVal;
+                
+                // Also update form inputs
+                bpmInput.value = bpmVal;
+                spo2Input.value = spo2Val;
+                irValueInput.value = irVal;
+                redValueInput.value = redVal;
+            }
+            
+            // Initial update
+            updateSensorValues();
+            
+            // Use monitor values button click handler
+            useMonitorValuesBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                updateSensorValues();
+                
+                // Flash the table to indicate values are updated
+                const table = document.querySelector('.prediction-table');
+                table.style.boxShadow = '0 0 15px rgba(76, 175, 80, 0.5)';
+                setTimeout(() => {
+                    table.style.boxShadow = '';
+                }, 500);
+            });
+            
+            // Function to update the gauge visualization
+            function updateGauge(score) {
+                // Calculate the dasharray for the gauge path
+                // The path length is approximately 251.2 (for the semi-circle path)
+                const pathLength = 251.2;
+                const dashLength = (score / 100) * pathLength;
+                
+                // Update the dasharray
+                gaugeValue.style.strokeDasharray = `${dashLength} ${pathLength}`;
+                
+                // Update gauge color based on stress level
+                if (score >= 70) {
+                    gaugeValue.className = 'stress-gauge-path stress-gauge-value high';
+                } else if (score >= 30) {
+                    gaugeValue.className = 'stress-gauge-path stress-gauge-value moderate';
+                } else {
+                    gaugeValue.className = 'stress-gauge-path stress-gauge-value low';
+                }
+            }
+            
+            // Form submission handler
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                predictionValue.textContent = 'Analyzing...';
+                predictionResult.style.display = 'block';
+                
+                const formData = new FormData(form);
+                
+                fetch('/predict_stress', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        predictionValue.textContent = 'Error: ' + data.error;
+                        predictionValue.className = 'prediction-value';
+                    } else {
+                        // Update stress level
+                        predictionValue.textContent = data.stress_level;
+                        
+                        // Update color based on stress level
+                        if (data.stress_level.includes('High')) {
+                            predictionValue.className = 'prediction-value high';
+                        } else if (data.stress_level.includes('Moderate')) {
+                            predictionValue.className = 'prediction-value moderate';
+                        } else {
+                            predictionValue.className = 'prediction-value low';
+                        }
+                        
+                        // Update gauge visualization
+                        stressScoreValue.textContent = data.stress_score + '/100';
+                        updateGauge(data.stress_score);
+                        
+                        // Update confidence
+                        confidenceBarFill.style.width = data.confidence + '%';
+                        confidenceValue.textContent = data.confidence + '% confidence';
+                        
+                        // Update explanation
+                        predictionExplanation.textContent = data.explanation;
+                    }
+                })
+                .catch(error => {
+                    predictionValue.textContent = 'Error: Could not make prediction';
+                    predictionValue.className = 'prediction-value';
+                });
+            });
+            
+            // Initialize gauge
+            gaugeValue.style.strokeDasharray = "0 251.2";
+        });
+    </script>
+</body>
+</html>

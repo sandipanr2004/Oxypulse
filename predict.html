@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Hemoglobin Prediction</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        /* Navbar styling */
+        .navbar {
+            display: flex;
+            background-color: var(--dark-surface);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .auth-section {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .auth-section a.login-btn {
+            margin-right: 0;
+        }
+
+        header {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .logo i {
+            font-size: 3.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+        }
+
+        .tagline {
+            font-size: 1.6rem;
+        }
+
+        .prediction-container {
+            transform: scale(1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 40px;
+            margin-top: 30px;
+            border-radius: 20px;
+        }
+
+        .prediction-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prediction-container h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prediction-container h2 i {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .prediction-container p {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+        }
+
+        .prediction-form {
+            gap: 40px;
+        }
+
+        .auto-values {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .auto-values:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .auto-values h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--light-color);
+        }
+
+        .auto-values p {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .prediction-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prediction-table th,
+        .prediction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prediction-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .prediction-table td {
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 15px;
+            font-size: 1.3rem;
+            border-width: 2px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #43a047;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.5);
+        }
+
+        .submit-btn i {
+            font-size: 1.3rem;
+        }
+
+        .prediction-result {
+            background-color: var(--dark-hover);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .prediction-result:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .prediction-result h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        #prediction-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 20px 0;
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .prediction-result p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .page-transition {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container page-transition">
+        <header>
+            <div class="logo">
+                <i class="fas fa-heartbeat pulse"></i>
+                <h1>OxyPulse</h1>
+            </div>
+            <p class="tagline">Real-time Heart Rate & Blood Oxygen Monitoring</p>
+        </header>
+        
+        <nav class="navbar">
+            <a href="/">Home</a>
+            <a href="/monitor.html">Monitor</a>
+            <a href="/predict.html" class="active">Hemoglobin</a>
+            <a href="/health_index.html">Health Index</a>
+            <a href="/predict2.html">Stress</a>
+            <a href="/predict3.html">Fatigue</a>
+            <div class="auth-section" id="auth-section">
+                <a href="login.html" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="prediction-container">
+                <h2><i class="fas fa-tint" style="color: var(--accent-color);"></i> Hemoglobin Prediction</h2>
+                <p>Use our advanced algorithm to predict your hemoglobin level based on the sensor readings and your personal information. This non-invasive estimation can provide insights into your blood health.</p>
+                
+                <div class="prediction-form">
+                    <div class="auto-values">
+                        <h3>Sensor Values</h3>
+                        <p>These values are automatically captured from the OxyPulse sensor:</p>
+                        <table class="prediction-table">
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Red Light Value</td>
+                                <td id="red-value-display">--</td>
+                            </tr>
+                            <tr>
+                                <td>IR Light Value</td>
+                                <td id="ir-value-display">--</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div>
+                        <h3>Personal Information</h3>
+                        <p>Please enter your personal details for more accurate prediction:</p>
+                        <form id="prediction-form">
+                            <input type="hidden" id="red-value-input" name="red_value">
+                            <input type="hidden" id="ir-value-input" name="ir_value">
+                            
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="0">Male</option>
+                                    <option value="1">Female</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="number" id="age" name="age" required min="1" max="120" placeholder="Enter your age">
+                            </div>
+                            
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-calculator"></i> Predict Hemoglobin
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="prediction-result" id="prediction-result" style="display: none;">
+                    <h3>Prediction Result</h3>
+                    <div id="prediction-value">--</div>
+                    <p>This is an estimated hemoglobin level based on the provided values. For medical diagnosis, please consult a healthcare professional.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>OxyPulse - Heart Rate & SpO₂ Monitor | Using MAX30105 Sensor</p>
+            <p class="instructions">Place your index finger on the sensor with steady pressure for accurate readings</p>
+        </footer>
+    </div>
+
+    <!-- Replace inline script with external script files -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="user-profile.js"></script>
+    <script type="module" src="predict.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add page transition effect
+            document.body.classList.add('page-loaded');
+        });
+    </script>
+</body>
+</html>

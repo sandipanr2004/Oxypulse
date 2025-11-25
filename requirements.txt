@@ -1,0 +1,5 @@
+Flask
+joblib
+numpy
+scikit-learn
+gunicorn==21.2.0

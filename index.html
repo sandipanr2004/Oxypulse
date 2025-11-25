@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Heart Rate & SpO2 Monitoring System</title>                                                   
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        .navbar {
+            display: flex;
+            background-color: var(--dark-surface);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            width: calc(100% - 40px);
+            max-width: 1160px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            justify-content: space-between;
+        }
+        
+        .navbar-nav {
+            display: flex;
+        }
+        
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .user-details {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 1000;
+        }
+        
+        .user-details.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .user-details h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            color: var(--light-color);
+        }
+        
+        .user-details p {
+            margin: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .user-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
+        .auth-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .login-btn {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .auth-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Add fadeIn animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, var(--dark-hover) 0%, var(--dark-color) 70%);
+            z-index: -2;
+        }
+
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .hero-logo {
+            font-size: 5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+            animation: pulseLarge 2s infinite;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--light-color);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .hero-btn {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+        }
+
+        .primary-hero-btn {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .primary-hero-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.6);
+        }
+
+        .secondary-hero-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .secondary-hero-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-btn i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+        .features-section {
+            padding: 120px 0;
+            background-color: var(--dark-surface);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--light-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary-color);
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            padding: 0 20px;
+        }
+
+        .feature-card {
+            background-color: var(--dark-card);
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .feature-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--dark-hover) 0%, var(--dark-color) 100%);
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        .cta-desc {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseLarge {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-secondary);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-20px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .cta-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Product Section Styles */
+        .product-section {
+            padding: 120px 0;
+            background-color: var(--dark-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+        }
+        
+        .product-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 50px;
+            padding: 0 20px;
+        }
+        
+        .product-image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-image-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+        
+        .product-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+        
+        .product-features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .product-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .product-feature i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .product-feature span {
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+        
+        .product-pricing {
+            margin-bottom: 25px;
+        }
+        
+        .product-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .price-note {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .buy-now-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 35px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            align-self: flex-start;
+        }
+        
+        .buy-now-btn i {
+            margin-right: 10px;
+        }
+        
+        .buy-now-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.6);
+            background-color: var(--primary-hover);
+        }
+        
+        @media (max-width: 992px) {
+            .product-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .product-image-container {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="navbar-nav">
+                <a href="/" class="active">Home</a>
+                <a href="/monitor.html">Monitor</a>
+                <a href="/health_index.html">Health Index</a>
+                <a href="/predict.html">Hemoglobin</a>
+                <a href="/predict2.html">Stress</a>
+                <a href="/predict3.html">Fatigue</a>
+                <a href="#product">Shop</a>
+            </div>
+            <div class="auth-section" id="auth-section">
+                <!-- This section will be populated by JavaScript -->
+                <a href="login.html" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-bg"></div>
+            <div class="hero-particles" id="particles-js"></div>
+            
+            <div class="hero-content">
+                <i class="fas fa-heartbeat hero-logo"></i>
+                <h1 class="hero-title">OxyPulse</h1>
+                <p class="hero-subtitle">Advanced real-time monitoring of heart rate and blood oxygen levels. A complete solution for health professionals and individuals seeking precise biometric data.</p>
+                
+                <div class="hero-actions">
+                    <a href="/monitor.html" class="hero-btn primary-hero-btn">
+                        <i class="fas fa-heartbeat"></i> Start Monitoring
+                    </a>
+                    <a href="#product" class="hero-btn secondary-hero-btn">
+                        <i class="fas fa-shopping-cart"></i> Buy Device
+                    </a>
+                    <a href="#features" class="hero-btn secondary-hero-btn">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </a>
+                </div>
+            </div>
+            
+            <div class="scroll-down">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section class="features-section" id="features">
+            <h2 class="section-title">Key Features</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-heartbeat feature-icon"></i>
+                    <h3 class="feature-title">Heart Rate Monitoring</h3>
+                    <p class="feature-desc">Track your heart rate in real-time with accurate BPM measurements and dynamic visualization of your cardiac rhythm.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-lungs feature-icon"></i>
+                    <h3 class="feature-title">Blood Oxygen Level</h3>
+                    <p class="feature-desc">Monitor your SpO₂ levels with precision to ensure optimal oxygen saturation in your bloodstream at all times.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-chart-line feature-icon"></i>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-desc">View detailed charts and statistics of your vital signs with dynamic updates and historical data tracking.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-tint feature-icon"></i>
+                    <h3 class="feature-title">Hemoglobin Prediction</h3>
+                    <p class="feature-desc">Use our advanced algorithm to estimate hemoglobin levels based on your vital signs and personal information.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-file-medical-alt feature-icon"></i>
+                    <h3 class="feature-title">Health Reports</h3>
+                    <p class="feature-desc">Generate comprehensive PDF reports of your health metrics for personal tracking or sharing with healthcare providers.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-lock feature-icon"></i>
+                    <h3 class="feature-title">Secure & Private</h3>
+                    <p class="feature-desc">Your health data remains on your device, ensuring complete privacy and security of your sensitive information.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="product-section" id="product">
+            <h2 class="section-title">OxyPulse Device</h2>
+            
+            <div class="product-container">
+                <div class="product-image-container">
+                    <img src="A.jpg" alt="OxyPulse Device" class="product-image">
+                </div>
+                <div class="product-details">
+                    <h3 class="product-title">OxyTag</h3>
+                    <p class="product-description">Get the complete OxyPulse health monitoring system including the MAX30105 sensor, Arduino setup, and all necessary components to start tracking your vital signs right away.</p>
+                    
+                    <div class="product-features-list">
+                        <div class="product-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>MAX30105 Sensor</span>
+                        </div>
+                        <div class="product-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Arduino Nano</span>
+                        </div>
+                        <div class="product-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Fingerprint Sensor Module</span>
+                        </div>
+                        <div class="product-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Full Setup Guide</span>
+                        </div>
+                        <div class="product-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>1 Year Warranty</span>
+                        </div>
+                    </div>
+                    
+                    <div class="product-pricing">
+                        <div class="product-price">₹799</div>
+                        <div class="price-note">Free shipping within India</div>
+                    </div>
+                    
+                    <a href="https://buy.stripe.com/test_aEUcO619s8hUdiw28a" class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i> Buy Now
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Monitor Your Health?</h2>
+                <p class="cta-desc">Connect your MAX30105 sensor and start tracking your vital signs with OxyPulse's intuitive interface and comprehensive analytics.</p>
+                <a href="/monitor.html" class="hero-btn primary-hero-btn">
+                    <i class="fas fa-stethoscope"></i> Launch Monitor
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <p>OxyPulse - Heart Rate & SpO₂ Monitor | Using MAX30105 Sensor</p>
+            <p class="instructions">Place your index finger on the sensor with steady pressure for accurate readings</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize particles.js
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#4caf50"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 2,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#4caf50",
+                        "opacity": 0.2,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 1,
+                        "direction": "none",
+                        "random": true,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 0.8
+                            }
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Firebase Scripts -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="user-profile.js"></script>
+</body>
+</html>

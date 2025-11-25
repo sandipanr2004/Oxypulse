@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212">
+    <title>OxyPulse - Heart Rate & SpO2 Monitor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90' text-anchor='middle' x='50%'>❤️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="text-size.css">
+    <style>
+        .navbar {
+            display: flex;
+            background-color: var(--dark-surface);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            justify-content: space-between;
+        }
+        
+        .navbar-nav {
+            display: flex;
+        }
+        
+        .navbar a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            margin-right: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar a:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .navbar a.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        header {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .logo i {
+            font-size: 3.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+        }
+
+        .tagline {
+            font-size: 1.6rem;
+        }
+
+        .reading-card {
+            transform: scale(1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reading-card:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .reading-icon {
+            width: 60px;
+            height: 60px;
+            top: -20px;
+        }
+
+        .reading-icon i {
+            font-size: 1.8rem;
+        }
+
+        .reading-value {
+            font-size: 4rem;
+            text-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .reading-unit {
+            font-size: 1.4rem;
+        }
+
+        .reading-small {
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+
+        .reading-small:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .reading-small .value {
+            font-size: 2rem;
+        }
+
+        .avg-value-item {
+            transition: all 0.3s ease;
+        }
+
+        .avg-value-item:hover {
+            transform: translateY(-5px) scale(1.03);
+        }
+
+        .control-panel button {
+            font-size: 1.3rem;
+            padding: 12px 20px;
+            min-width: 180px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .control-panel button:hover {
+            transform: translateY(-5px);
+        }
+
+        .primary-btn:hover {
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+        }
+
+        table {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            transform: translateX(5px);
+        }
+
+        .auto-stop-info {
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .auto-stop-container {
+            margin-top: 15px;
+            width: 100%;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 100%;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        #countdown-timer {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .page-transition {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .patient-info {
+            margin-top: 40px;
+        }
+
+        .input-group input {
+            font-size: 1.3rem;
+            padding: 15px;
+        }
+
+        .input-group label {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .status-panel div {
+            padding: 12px 20px;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-panel div:hover {
+            transform: translateY(-3px);
+        }
+
+        .reading-chart {
+            height: 180px;
+        }
+
+        /* User profile styles from index.html */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .user-details {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: var(--dark-card);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 250px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 1000;
+        }
+
+        .user-details.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .user-details h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            color: var(--light-color);
+        }
+
+        .user-details p {
+            margin: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .user-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .login-btn {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .auth-section {
+            display: flex;
+            align-items: center;
+        }
+
+        #connection-status.error {
+            background-color: #ff5252;
+        }
+
+        #connection-status.error i {
+            color: white;
+        }
+
+        .auto-stop-info.error {
+            color: #ff5252;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container page-transition">
+        <header>
+            <div class="logo">
+                <i class="fas fa-heartbeat pulse"></i>
+                <h1>OxyPulse</h1>
+            </div>
+            <p class="tagline">Real-time Heart Rate & Blood Oxygen Monitoring</p>
+        </header>
+
+        <nav class="navbar">
+            <div class="navbar-nav">
+                <a href="/">Home</a>
+                <a href="/monitor.html" class="active">Monitor</a>
+                <a href="/health_index.html">Health Index</a>
+                <a href="/predict.html">Hemoglobin</a>
+                <a href="/predict2.html">Stress</a>
+                <a href="/predict3.html">Fatigue</a>
+            </div>
+            <div class="auth-section" id="auth-section">
+                <!-- This section will be populated by JavaScript -->
+                <a href="login.html" class="login-btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="status-panel">
+                <div id="connection-status" class="disconnected">
+                    <i class="fas fa-plug"></i>
+                    <span>Disconnected</span>
+                </div>
+                <div id="finger-status" class="no-finger">
+                    <i class="fas fa-hand-pointer"></i>
+                    <span>No Finger Detected</span>
+                </div>
+            </div>
+
+            <div class="readings-container">
+                <div class="reading-card">
+                    <div class="reading-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="reading-info">
+                        <h3>Heart Rate</h3>
+                        <div class="reading-value" id="bpm-value">--</div>
+                        <div class="reading-unit">BPM</div>
+                    </div>
+                    <div class="reading-chart">
+                        <canvas id="heart-rate-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="reading-card">
+                    <div class="reading-icon">
+                        <i class="fas fa-lungs"></i>
+                    </div>
+                    <div class="reading-info">
+                        <h3>Blood Oxygen</h3>
+                        <div class="reading-value" id="spo2-value">--</div>
+                        <div class="reading-unit">%</div>
+                    </div>
+                    <div class="reading-chart">
+                        <canvas id="spo2-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advanced-readings">
+                <div class="reading-small">
+                    <span class="label">Avg BPM</span>
+                    <span class="value" id="avg-bpm-value">--</span>
+                </div>
+                <div class="reading-small">
+                    <span class="label">IR Value</span>
+                    <span class="value" id="ir-value">--</span>
+                </div>
+                <div class="reading-small">
+                    <span class="label">Red Value</span>
+                    <span class="value" id="red-value">--</span>
+                </div>
+            </div>
+
+            <div id="avg-values-container" class="avg-values-container" style="display: none;">
+                <h2>Session Averages</h2>
+                <div class="avg-values-grid">
+                    <div class="avg-value-item">
+                        <div class="avg-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="avg-label">Avg Heart Rate</div>
+                        <div class="avg-number" id="avg-bpm">--</div>
+                        <div class="avg-unit">BPM</div>
+                    </div>
+                    <div class="avg-value-item">
+                        <div class="avg-icon">
+                            <i class="fas fa-lungs"></i>
+                        </div>
+                        <div class="avg-label">Avg SpO₂</div>
+                        <div class="avg-number" id="avg-spo2">--</div>
+                        <div class="avg-unit">%</div>
+                    </div>
+                    <div class="avg-value-item">
+                        <div class="avg-icon">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <div class="avg-label">Avg IR Value</div>
+                        <div class="avg-number" id="avg-ir">--</div>
+                    </div>
+                    <div class="avg-value-item">
+                        <div class="avg-icon">
+                            <i class="fas fa-signal"></i>
+                        </div>
+                        <div class="avg-label">Avg Red Value</div>
+                        <div class="avg-number" id="avg-red">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section patient-info">
+                <h2 class="section-title">Patient Information</h2>
+                <div class="input-group">
+                    <label for="patient-name">Patient Name</label>
+                    <input type="text" id="patient-name" placeholder="Enter patient name">
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button id="connect-button" class="primary-btn">
+                    <i class="fas fa-link"></i> Connect
+                </button>
+                <button id="save-data-button" class="secondary-btn" disabled>
+                    <i class="fas fa-save"></i> Save Data
+                </button>
+                <button id="download-pdf-button" class="secondary-btn" disabled>
+                    <i class="fas fa-file-pdf"></i> Download Report
+                </button>
+                <div class="auto-stop-container">
+                    <div class="auto-stop-info">Auto-stop in <span id="countdown-timer">12</span> seconds</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="auto-stop-info error" id="monitoring-error-message" style="display: none;"></div>
+                </div>
+            </div>
+        </main>
+
+        <div class="history-section">
+            <h2>Measurement History</h2>
+            <div class="history-table-container">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Heart Rate (BPM)</th>
+                            <th>SpO₂ (%)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-data">
+                        <!-- Data will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>OxyPulse - Heart Rate & SpO₂ Monitor | Using MAX30105 Sensor</p>
+            <p class="instructions">Place your index finger on the sensor with steady pressure for accurate readings</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="user-profile.js"></script>
+    <script>
+        // Add page transition effect
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('page-loaded');
+        });
+    </script>
+    <script type="module">
+        import { getUserProfile } from './user-profile.js';
+        
+        // Use user profile data to pre-fill patient info
+        document.addEventListener('DOMContentLoaded', () => {
+            const patientNameInput = document.getElementById('patient-name');
+            const userProfile = getUserProfile();
+            
+            if (userProfile && patientNameInput) {
+                patientNameInput.value = userProfile.username || '';
+            }
+        });
+    </script>
+</body>
+</html>
